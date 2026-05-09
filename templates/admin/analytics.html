@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Admin Analytics - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Admin Analytics Dashboard</h2>
+<div class="row mb-4">
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-primary p-3"><div class="d-flex align-items-center"><i class="bi bi-currency-dollar fs-3 me-2"></i><div><h5>Total Sales</h5><p class="mb-0">PKR {{ '%.2f'|format(total_sales) }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-success p-3"><div class="d-flex align-items-center"><i class="bi bi-graph-up fs-3 me-2"></i><div><h5>Total Profit</h5><p class="mb-0">PKR {{ '%.2f'|format(total_profit) }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-warning p-3"><div class="d-flex align-items-center"><i class="bi bi-bag-check fs-3 me-2"></i><div><h5>Total Orders</h5><p class="mb-0">{{ total_orders }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-info p-3"><div class="d-flex align-items-center"><i class="bi bi-people fs-3 me-2"></i><div><h5>Total Customers</h5><p class="mb-0">{{ total_customers }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-secondary p-3"><div class="d-flex align-items-center"><i class="bi bi-box-seam fs-3 me-2"></i><div><h5>Total Products</h5><p class="mb-0">{{ total_products }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-dark p-3"><div class="d-flex align-items-center"><i class="bi bi-cash-stack fs-3 me-2"></i><div><h5>Total Making Cost</h5><p class="mb-0">PKR {{ '%.2f'|format(total_making_cost) }}</p></div></div></div></div>
+</div>
+<div class="row mb-4">
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-primary p-3"><div class="d-flex align-items-center"><i class="bi bi-calendar-day fs-3 me-2"></i><div><h5>Today Sales</h5><p class="mb-0">PKR {{ '%.2f'|format(today_sales) }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-success p-3"><div class="d-flex align-items-center"><i class="bi bi-currency-dollar fs-3 me-2"></i><div><h5>Today Profit</h5><p class="mb-0">PKR {{ '%.2f'|format(today_profit) }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-warning p-3"><div class="d-flex align-items-center"><i class="bi bi-hourglass-split fs-3 me-2"></i><div><h5>Pending Orders</h5><p class="mb-0">{{ pending_orders }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-info p-3"><div class="d-flex align-items-center"><i class="bi bi-hand-index fs-3 me-2"></i><div><h5>Pending Custom</h5><p class="mb-0">{{ pending_custom_orders }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-success p-3"><div class="d-flex align-items-center"><i class="bi bi-check2-circle fs-3 me-2"></i><div><h5>Complete Orders</h5><p class="mb-0">{{ complete_orders }}</p></div></div></div></div>
+  <div class="col-sm-6 col-xl-2 mb-3"><div class="card text-white bg-danger p-3"><div class="d-flex align-items-center"><i class="bi bi-wallet2 fs-3 me-2"></i><div><h5>Dues Remaining</h5><p class="mb-0">PKR {{ '%.2f'|format(dues_remaining) }}</p></div></div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card p-3"><h5>Monthly Sales Overview</h5><img src="{{ url_for('admin_chart', chart_type='monthly_sales') }}" class="img-fluid" alt="Monthly Sales"></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3"><h5>Monthly Profit Overview</h5><img src="{{ url_for('admin_chart', chart_type='monthly_profit') }}" class="img-fluid" alt="Monthly Profit"></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3"><h5>Product Category Sales Distribution</h5><img src="{{ url_for('admin_chart', chart_type='category_sales') }}" class="img-fluid" alt="Category Sales"></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3"><h5>Product Category Profit Distribution</h5><img src="{{ url_for('admin_chart', chart_type='category_profit') }}" class="img-fluid" alt="Category Profit"></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3"><h5>Order Status Distribution</h5><img src="{{ url_for('admin_chart', chart_type='order_status') }}" class="img-fluid" alt="Order Status"></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3"><h5>Top Profit Products</h5><img src="{{ url_for('admin_chart', chart_type='profit_per_product') }}" class="img-fluid" alt="Top Profit Products"></div>
+  </div>
+</div>
+<div class="mt-4">
+  <a class="btn btn-outline-success" href="{{ url_for('admin_analytics_pdf') }}">Download PDF Analytics</a>
+  <a class="btn btn-outline-primary" href="{{ url_for('admin_reports') }}">View Reports</a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+</div>
+{% endblock %}

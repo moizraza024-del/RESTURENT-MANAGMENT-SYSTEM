@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Home - Sugar Blush{% endblock %}
+{% block content %}
+<div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    {% for banner in promotions %}
+    <div class="carousel-item {% if loop.first %}active{% endif %}">
+      <a href="{{ url_for('shop') }}" class="d-block">
+        <img src="{{ banner.image }}" class="d-block w-100 hero-banner" alt="banner">
+      </a>
+      <div class="carousel-caption d-none d-md-block text-start">
+        <h1 class="display-4 animated-text" style="color:#fff; text-shadow: 2px 2px 20px rgba(0,0,0,.45);">Sweet Taste of Life</h1>
+        <p class="lead" style="color:#fff;">Freshly baked every day with love and warm spices.</p>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('shop') }}" class="btn btn-gradient">Shop Now</a>
+          <a href="{{ url_for('custom_orders') }}" class="btn btn-outline-warning text-dark">Custom Order</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+</div>
+
+{% if current_user.is_authenticated and (due_amount > 0 or warning_note) %}
+  <div class="mt-3">
+    <div class="alert alert-info">
+      <strong>Welcome back, {{ current_user.name or current_user.email }}!</strong>
+      <div>Outstanding Due: PKR {{ '%.2f'|format(due_amount) }}</div>
+      {% if due_threshold > 0 %}
+        <div>Warning Threshold: PKR {{ '%.2f'|format(due_threshold) }}</div>
+      {% endif %}
+      {% if due_status %}
+        <div class="mt-1 alert alert-danger p-2">{{ due_status }}</div>
+      {% elif due_amount > 0 %}
+        <div class="mt-1 alert alert-warning p-2">Please settle your pending amount.</div>
+      {% endif %}
+      {% if warning_note %}
+        <div class="mt-1 alert alert-danger p-2">Admin warning: {{ warning_note }}</div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="mt-4 fade-on-scroll">
+  <h2>Announcements</h2>
+  <div class="row">
+    {% for ann in announcements %}
+    <div class="col-md-4">
+      <div class="card announcement-card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">{{ ann.title }}</h5>
+          <p class="card-text">{{ ann.content }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h2 class="mb-0">Featured Products</h2>
+    <a href="{{ url_for('shop') }}" class="btn btn-outline-primary btn-sm">More</a>
+  </div>
+  <div class="row">
+    {% for p in featured %}
+    <div class="col-6 col-sm-4 col-lg-3">
+      <div class="card product-card mb-4" onclick="window.location='{{ url_for('product_detail', product_id=p.id) }}';" style="cursor:pointer;">
+        <img src="{{ p.image }}" class="card-img-top" alt="{{ p.name }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ p.name }}</h5>
+          <p class="card-text">PKR {{ '%.2f'|format(p.price_after_discount) }}
+            {% if p.discount > 0 %}<small class="text-muted text-decoration-line-through">PKR {{ '%.2f'|format(p.sale_price) }}</small>{% endif %}
+          </p>
+          <div class="d-flex gap-2">
+            <form action="{{ url_for('add_to_cart', product_id=p.id) }}" method="post" class="flex-fill" onclick="event.stopPropagation();">
+              <input type="hidden" name="quantity" value="1">
+              <button class="btn btn-sm btn-primary w-100" onclick="event.stopPropagation();">Add to Cart</button>
+            </form>
+            <form action="{{ url_for('buy_now', product_id=p.id) }}" method="post" class="flex-fill" onclick="event.stopPropagation();">
+              <input type="hidden" name="quantity" value="1">
+              <button class="btn btn-sm btn-success w-100" onclick="event.stopPropagation();">Buy Now</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="mt-4 new-arrivals-section p-3 rounded-3" style="background: linear-gradient(160deg, #FFF4E6 0%, #FFE7CA 100%); border: 2px solid #FFB97A;">
+  <h2 class="new-arrivals-title" style="color:#ba4d4d; font-weight: 800;">New Arrivals (Just Landed!)</h2>
+  <div class="row">
+    {% for p in products %}
+    <div class="col-6 col-sm-4 col-lg-3">
+      <div class="card product-card mb-4" onclick="window.location='{{ url_for('product_detail', product_id=p.id) }}';" style="cursor:pointer;">
+        <img src="{{ p.image }}" class="card-img-top" alt="{{ p.name }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ p.name }}</h5>
+          <p class="card-text">PKR {{ '%.2f'|format(p.price_after_discount) }}
+            {% if p.discount > 0 %}<small class="text-muted text-decoration-line-through">PKR {{ '%.2f'|format(p.sale_price) }}</small>{% endif %}
+          </p>
+          <div class="d-flex gap-2">
+            <form action="{{ url_for('add_to_cart', product_id=p.id) }}" method="post" class="m-0" onclick="event.stopPropagation();">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">Add to Cart</button>
+            </form>
+            <form action="{{ url_for('buy_now', product_id=p.id) }}" method="post" class="m-0" onclick="event.stopPropagation();">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" class="btn btn-sm btn-success" onclick="event.stopPropagation();">Buy Now</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

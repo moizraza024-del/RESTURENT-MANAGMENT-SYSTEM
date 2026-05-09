@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}About Us - Sugar Blush{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <h2>Our Story</h2>
+    {% if about_text %}
+      <p>{{ about_text }}</p>
+    {% else %}
+      <p>At Sugar Blush, we bake with love and fresh ingredients. From small cookies to grand wedding cakes, every order is handcrafted for you.</p>
+      <p>Our artisan bakers bring decades of experience and creative flair to every product.</p>
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <img src="{{ about_image or url_for('static', filename='uploads/SUGAR SLUSH (1).png') }}" class="img-fluid rounded" alt="Our Story">
+  </div>
+</div>
+
+<div class="row text-center mt-4 counters">
+  <div class="col-4">
+    <h3 class="counter" data-target="{{ stats.products_sold }}">0</h3>
+    <p>Products Sold</p>
+  </div>
+  <div class="col-4">
+    <h3 class="counter" data-target="{{ stats.happy_customers }}">0</h3>
+    <p>Happy Customers</p>
+  </div>
+  <div class="col-4">
+    <h3 class="counter" data-target="{{ stats.years_experience }}">0</h3>
+    <p>Years Experience</p>
+  </div>
+</div>
+{% endblock %}

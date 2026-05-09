@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Custom Orders - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Custom Order Request</h2>
+<form method="post" enctype="multipart/form-data" class="row g-3">
+  <div class="col-md-6"><label class="form-label">Title</label><input name="title" class="form-control" required></div>
+  <div class="col-md-6"><label class="form-label">Quantity</label><input name="quantity" type="number" class="form-control" value="1" min="1" required></div>
+  <div class="col-12"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3" required></textarea></div>
+  <div class="col-12"><label class="form-label">Upload Reference Image</label><input name="image" type="file" class="form-control"></div>
+  <div class="col-12"><button class="btn btn-primary">Submit Custom Request</button></div>
+</form>
+<hr>
+<h3>Your Requests</h3>
+<div class="row row-cols-1 row-cols-md-2 g-3">
+  {% for request in requests %}
+  <div class="col">
+    <div class="card h-100 shadow-sm custom-request-card">
+      <div class="row g-0 align-items-center">
+        <div class="col-auto p-3">
+          {% if request.uploaded_image %}
+          <img src="{{ request.uploaded_image }}" class="rounded" style="width:90px; height:90px; object-fit:cover;" alt="Request Image">
+          {% else %}
+          <div class="bg-light text-center rounded" style="width:90px; height:90px; display:grid; place-items:center;">No image</div>
+          {% endif %}
+        </div>
+        <div class="col">
+          <div class="card-body py-2 px-3">
+            <h5 class="card-title mb-1">{{ request.title }} <small class="text-muted">(#{{ request.id }})</small></h5>
+            <p class="mb-1">
+              <strong>Qty:</strong>
+              {% if request.status in ['Quoted', 'Confirmed'] %}
+              <form action="{{ url_for('update_custom_quantity', custom_id=request.id) }}" method="post" class="d-inline-flex align-items-center gap-1">
+                <input type="number" name="quantity" value="{{ request.quantity }}" min="1" class="form-control form-control-sm" style="width:90px;" required>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
+              </form>
+              {% else %}
+                {{ request.quantity }}
+              {% endif %}
+              | <strong>Status:</strong> {{ request.status }}
+            </p>
+            <p class="mb-1"><strong>Unit:</strong> {% if request.estimate_price %}PKR {{ '%.2f'|format(request.estimate_price) }}{% else %}-{% endif %} | <strong>Total:</strong> {% if request.estimate_price %}PKR {{ '%.2f'|format(request.estimate_price * request.quantity) }}{% else %}-{% endif %}</p>
+            <div class="d-flex gap-2 flex-wrap">
+              {% if request.status == 'Quoted' %}
+              <a href="{{ url_for('custom_order_checkout', custom_id=request.id) }}" class="btn btn-sm btn-primary">Start Checkout</a>
+              {% elif request.status == 'Confirmed' %}
+              <span class="badge bg-warning text-dark">Awaiting Admin Conversion</span>
+              {% elif request.status == 'Awaiting Conversion' %}
+              <span class="badge bg-info text-white">Awaiting Admin Conversion</span>
+              {% elif request.status == 'Converted' %}
+              <span class="badge bg-success">Converted to Order</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Admin Stock Report - Sugar Blush{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div><h2 class="mb-0">Stock Analytics Report</h2><small class="text-muted">Inventory summary and category breakdown</small></div>
+  <div>
+    <a class="btn btn-outline-primary me-2" href="{{ url_for('admin_stock_report_pdf') }}">Download PDF</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_stock') }}">Manage Stock</a>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-2"><div class="card p-3 border-primary"><h6>Total Stock</h6><strong>{{ total_stock }}</strong></div></div>
+  <div class="col-md-2"><div class="card p-3 border-warning"><h6>Low Stock (<= {{ stock_warning_threshold }})</h6><strong>{{ low_stock_items }}</strong></div></div>
+</div>
+
+<div class="card mb-4 p-3">
+  <h5>Category Stock Breakdown</h5>
+  <table class="table table-sm">
+    <thead><tr><th>Category</th><th>Total Stock</th></tr></thead>
+    <tbody>
+      {% for cat, stock in category_stock %}
+      <tr><td>{{ cat }}</td><td>{{ stock }}</td></tr>
+      {% else %}
+      <tr><td colspan="2">No categories found</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card p-3">
+  <h5>All Products Stock</h5>
+  <table class="table table-striped table-hover align-middle">
+    <thead><tr><th>#</th><th>Product</th><th>Category</th><th>Stock</th><th>Status</th><th>Stock Level</th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      {% set status = 'Out of stock' if p.stock <= 0 else ('Low' if p.stock <= stock_warning_threshold else 'Normal') %}
+      <tr class="{% if p.stock <= 0 %}table-danger{% elif p.stock <= stock_warning_threshold %}table-warning{% endif %}">
+        <td>{{ loop.index }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.category.name if p.category else 'None' }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          {% if p.stock <= 0 %}
+            <span class="badge bg-danger">Out of stock</span>
+          {% elif p.stock <= stock_warning_threshold %}
+            <span class="badge bg-warning text-dark">Low</span>
+          {% else %}
+            <span class="badge bg-success">Normal</span>
+          {% endif %}
+        </td>
+        <td>
+          {% set capped = p.stock if p.stock <= 100 else 100 %}
+          <div class="progress" style="height: 1rem;">
+            <div class="progress-bar {% if p.stock <= 0 %}bg-danger{% elif p.stock <= stock_warning_threshold %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ capped }}%;" aria-valuenow="{{ capped }}" aria-valuemin="0" aria-valuemax="100">{{ p.stock }}</div>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No product data</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

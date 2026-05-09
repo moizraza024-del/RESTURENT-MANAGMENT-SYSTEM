@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.name }} Orders - Sugar Blush{% endblock %}
+{% block content %}
+<h2>{{ user.name }} - Order History</h2>
+<div class="d-flex gap-2 mb-3">
+  <a class="btn btn-sm btn-secondary" href="{{ url_for('admin_users') }}">Back to users</a>
+  <a class="btn btn-sm btn-primary" href="{{ url_for('admin_user_report_pdf', user_id=user.id) }}">Download PDF Report</a>
+</div>
+<div class="alert alert-info">Pending due for this customer: <strong>PKR {{ '%.2f'|format(total_due) }}</strong></div>
+<div class="mb-3">
+  <span class="badge bg-success">Total Orders: {{ total_orders }}</span>
+  <span class="badge bg-success">Completed: {{ completed_orders }}</span>
+  <span class="badge bg-warning">Pending: {{ pending_orders }}</span>
+  <span class="badge bg-info">Total Sales: PKR {{ '%.2f'|format(total_amount) }}</span>
+  <span class="badge bg-info">Total Paid: PKR {{ '%.2f'|format(total_paid) }}</span>
+  <span class="badge bg-info">Total Making Cost: PKR {{ '%.2f'|format(total_making_cost) }}</span>
+  <span class="badge bg-info">Total Profit: PKR {{ '%.2f'|format(total_profit) }}</span>
+</div>
+<table class="table table-striped">
+  <thead><tr><th>Order ID</th><th>Date</th><th>Status</th><th>Total</th><th>Due</th><th>Items</th></tr></thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>{{ order.id }}</td>
+      <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ order.status }}</td>
+      <td>PKR {{ '%.2f'|format(order.total_price) }}</td>
+      <td>PKR {{ '%.2f'|format(order.total_price - order.amount_paid) }}</td>
+      <td>
+        <ul class="small">
+          {% for item in order.items %}
+          <li>{{ item.product.name if item.product else 'Custom item' }} x {{ item.quantity }} (PKR {{ '%.2f'|format(item.price) }})</li>
+          {% endfor %}
+          {% for addon in order.addons %}
+          <li>Add-on: {{ addon.name }} (PKR {{ '%.2f'|format(addon.price) }})</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

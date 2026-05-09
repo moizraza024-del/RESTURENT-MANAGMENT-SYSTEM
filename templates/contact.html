@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us - Sugar Blush{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <h2>Contact Us</h2>
+    <form method="post" novalidate>
+      <div class="mb-3"><label class="form-label">Name</label><input type="text" name="name" class="form-control" value="{{ current_user.name if current_user.is_authenticated else '' }}" required></div>
+      <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ current_user.email if current_user.is_authenticated else '' }}" required></div>
+      <div class="mb-3"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Message</label><textarea name="message" class="form-control" rows="4" required></textarea></div>
+      <button class="btn btn-primary">Send Message</button>
+    </form>
+
+    {% if message_history %}
+    <div class="mt-4">
+      <h4>Your Contact History</h4>
+      <table class="table table-bordered">
+        <thead>
+          <tr><th>Date</th><th>Status</th><th>Message</th><th>Reply</th></tr>
+        </thead>
+        <tbody>
+          {% for msg in message_history %}
+          <tr>
+            <td>{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ msg.status }}</td>
+            <td>{{ msg.message }}</td>
+            <td>{{ msg.response or 'No reply yet' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-lg-6">
+    <h2>Our Location</h2>
+    <div class="ratio ratio-16x9">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126743.90234912504!2d-122.50764085419475!3d37.757679619820205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808f7e2bbf4b6fa3%3A0x61681fdb3e78c4d0!2sSan%20Francisco%2C%20CA%2C%20USA!5e0!3m2!1sen!2sus!4v1598000000000" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+{% endblock %}

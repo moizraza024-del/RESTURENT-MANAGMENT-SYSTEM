@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Top Search Report - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Top Search Term Analytics</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <p class="mb-0 text-muted">Data includes all tracked user search terms and frequency.</p>
+    <small class="text-muted">Most recent searches first.</small>
+  </div>
+  <div>
+    <a class="btn btn-success me-2" href="{{ url_for('admin_top_search_report_pdf') }}">Download PDF Report</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 border-left-primary">
+      <div class="text-muted">Unique Search Terms</div>
+      <div class="h3 mb-0">{{ unique_searches }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 border-left-info">
+      <div class="text-muted">Total Search Volume</div>
+      <div class="h3 mb-0">{{ total_searches }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 border-left-warning">
+      <div class="text-muted">Avg Searches/Term</div>
+      <div class="h3 mb-0">{{ '%.2f'|format(average_searches_per_term) }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 border-left-success">
+      <div class="text-muted">Top Search Term</div>
+      <div class="h3 mb-0">{{ top_term.query_text if top_term else 'N/A' }}</div>
+      <small class="text-muted">({{ top_term.count if top_term else '-' }} searches)</small>
+    </div>
+  </div>
+</div>
+{% if top_five %}
+<div class="card mb-4 p-3 shadow-sm">
+  <h5>Top 5 Search Terms</h5>
+  <div class="row">
+    {% for row in top_five %}
+    <div class="col-md-4 mb-2">
+      <div class="border rounded p-2">
+        <strong>{{ loop.index }}. {{ row.query_text }}</strong>
+        <span class="badge bg-primary ms-2">{{ row.count }}</span>
+        <div class="text-muted small">{{ row.last_searched.strftime('%Y-%m-%d') if row.last_searched else 'N/A' }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Rank</th>
+      <th scope="col">Search Term</th>
+      <th scope="col">Count</th>
+      <th scope="col">Last Searched</th>
+      <th scope="col">Trend</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in top_searches %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ row.query_text }}</td>
+      <td>{{ row.count }}</td>
+      <td>{{ row.last_searched.strftime('%Y-%m-%d %H:%M:%S') if row.last_searched else '-' }}</td>
+      <td>
+        {% if row.count > 20 %}
+          <span class="badge bg-success">High</span>
+        {% elif row.count > 5 %}
+          <span class="badge bg-warning">Medium</span>
+        {% else %}
+          <span class="badge bg-secondary">Low</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5" class="text-center">No searches yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

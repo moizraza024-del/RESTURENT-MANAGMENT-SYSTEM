@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<div class="row mb-3">
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-primary h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-currency-dollar fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Total Sales</h6>
+          <strong>PKR {{ '%.2f'|format(total_sales) }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-success h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-graph-up fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Total Profit</h6>
+          <strong>PKR {{ '%.2f'|format(total_profit) }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-warning h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-basket3 fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Total Orders</h6>
+          <strong>{{ total_orders }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-info h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-people fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Total Customers</h6>
+          <strong>{{ total_customers }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-secondary h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-box-seam fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Total Products</h6>
+          <strong>{{ total_products }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-primary h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-calendar-day fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Today Sales</h6>
+          <strong>PKR {{ '%.2f'|format(today_sales) }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-success h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-currency-dollar fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Today Profit</h6>
+          <strong>PKR {{ '%.2f'|format(today_profit) }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-warning h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-hourglass-split fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Pending Orders</h6>
+          <strong>{{ pending_orders }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-info h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-hand-index fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Pending Custom Orders</h6>
+          <strong>{{ pending_custom_orders }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-success h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-check2-circle fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Completed Orders</h6>
+          <strong>{{ complete_orders }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-danger h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-wallet2 fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Dues Remaining</h6>
+          <strong>PKR {{ '%.2f'|format(dues_remaining) }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-dark h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-boxes fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Total Stock</h6>
+          <strong>{{ total_stock }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-2 mb-2">
+    <div class="card text-white bg-warning h-100 p-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div><i class="bi bi-exclamation-triangle fs-2"></i></div>
+        <div class="text-end">
+          <h6 class="mb-0">Low stock (<= {{ stock_warning_threshold }})</h6>
+          <strong>{{ low_stock_items }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12">
+    <a class="btn btn-outline-success" href="{{ url_for('admin_stock') }}">Manage Stock</a>
+  </div>
+</div>
+
+<div class="card mb-4 p-3">
+  <h5>Overall Sales Overview (Last 30 days)</h5>
+  <img src="{{ sales_overall_chart }}" class="img-fluid" alt="Overall sales graph">
+</div>
+
+<div class="mb-3">
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_reports') }}">Reports & Analytics</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_analytics') }}">Analytics</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_contact_messages') }}">Contact Messages</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_users') }}">Users</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_products') }}">Products</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_categories') }}">Categories</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_banners') }}">Banners</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_announcements') }}">Announcements</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_orders') }}">Orders</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_custom_orders') }}">Custom Orders</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_stock_report') }}">Stock Report</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_top_search_report') }}">Top Search Report</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('admin_site_settings') }}">Site Settings</a>
+</div>
+{% endblock %}

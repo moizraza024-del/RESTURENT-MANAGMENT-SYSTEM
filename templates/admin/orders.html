@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}Admin Orders - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Orders</h2>
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+  <a href="{{ url_for('admin_orders', date='today', status=status_filter, order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if date_filter == 'today' %}btn-primary{% else %}btn-outline-primary{% endif %}">Today</a>
+  <a href="{{ url_for('admin_orders', date='yesterday', status=status_filter, order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if date_filter in ['yesterday', 'last'] %}btn-primary{% else %}btn-outline-primary{% endif %}">Yesterday</a>
+  <a href="{{ url_for('admin_orders', date=date_filter, status='pending', order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if status_filter and status_filter.lower() == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}">Pending</a>
+  <a href="{{ url_for('admin_orders', date=date_filter, status='complete', order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if status_filter and status_filter.lower() == 'complete' %}btn-primary{% else %}btn-outline-primary{% endif %}">Complete</a>
+  <a href="{{ url_for('admin_orders', date='all') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+</div>
+<form method="get" class="row g-3 mb-3">
+  <div class="col-md-2"><input class="form-control" name="order_number" placeholder="Search Order No" value="{{ order_number if order_number else '' }}"></div>
+  <div class="col-md-2"><input class="form-control" name="customer_name" placeholder="Search Customer Name" value="{{ customer_name if customer_name else '' }}"></div>
+  <div class="col-md-2">
+    <select class="form-select" name="status">
+      <option value="">All status</option>
+      <option value="pending" {% if status_filter and status_filter.lower() == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="complete" {% if status_filter and status_filter.lower() == 'complete' %}selected{% endif %}>Complete</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <input type="date" class="form-control" name="date" value="{% if date_filter not in ['today','yesterday','last','all'] %}{{ date_filter }}{% endif %}">
+  </div>
+  <div class="col-md-2"><button class="btn btn-secondary">Search</button></div>
+</form>
+<form method="post" class="mb-3" id="admin_order_form">
+  <div class="row g-3 align-items-end mb-2">
+    <div class="col-md-3"><select class="form-select" name="user_id" required><option value="0">New customer (manual)</option>{% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.email }})</option>{% endfor %}</select></div>
+    <div class="col-md-3"><input class="form-control" name="customer_name" placeholder="Customer Name (if new)"></div>
+    <div class="col-md-3"><input class="form-control" name="customer_email" placeholder="Customer Email (if new)" type="email"></div>
+    <div class="col-md-2"><select class="form-select" name="payment_method" required><option value="Cash on Delivery">Cash on Delivery</option><option value="Online">Online</option></select></div>
+  </div>
+  <div id="admin_order_items"></div>
+  <div class="mb-3">
+    <button type="button" id="add_order_item" class="btn btn-outline-primary btn-sm">Add Item</button>
+    <button type="submit" class="btn btn-primary">Create Order</button>
+  </div>
+</form>
+
+<template id="order_item_template">
+  <div class="row g-3 mb-2 order-item">
+    <div class="col-md-3">
+      <select class="form-select product-select" name="product_id" required>
+        <option value="">Product</option>
+        <option value="manual">-- Manual Product --</option>
+        {% for p in products %}
+          <option value="{{ p.id }}">{{ p.name }} - PKR {{ '%.2f'|format(p.sale_price) }}</option>
+        {% endfor %}
+      </select>
+      <div class="manual-product-fields mt-2" style="display:none;">
+        <input class="form-control form-control-sm mb-1" name="manual_name" placeholder="Manual name">
+        <input class="form-control form-control-sm mb-1" name="manual_description" placeholder="Description">
+        <input class="form-control form-control-sm mb-1" name="manual_sale_price" placeholder="Sale price" type="number" step="0.01" min="0">
+        <input class="form-control form-control-sm" name="manual_making_cost" placeholder="Making cost" type="number" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="col-md-2">
+      <input class="form-control" name="quantity" placeholder="Qty" type="number" min="1" required>
+    </div>
+    <div class="col-md-4">
+      <div class="addon-container"><small>Select product first for addons</small></div>
+    </div>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-danger btn-sm remove-item">Remove</button>
+    </div>
+  </div>
+</template>
+<div class="row row-cols-1 g-3">
+  {% if orders|length == 0 %}
+    <div class="col"><div class="alert alert-info">No orders found.</div></div>
+  {% endif %}
+  {% for order in orders %}
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h5 class="card-title mb-1">Order #{{ order.order_number or 'N/A' }} <small class="text-muted">(ID {{ order.id }})</small></h5>
+              <p class="mb-1 text-muted">{{ order.order_name or 'No title' }}</p>
+            </div>
+            <span class="badge bg-{{ 'warning' if order.status in ['Pending', 'Under Process'] else 'primary' if order.status == 'Shipped' else 'success' if order.status in ['Complete', 'Paid'] else 'secondary' }}">{{ order.status }}</span>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Customer:</strong> {{ order.user.name }}<br><small class="text-muted">{{ order.user.email }}</small></div>
+            <div class="col-sm-3"><strong>Payment:</strong> {{ order.payment_method or 'Cash on Delivery' }}</div>
+            <div class="col-sm-2"><strong>Date:</strong> {{ order.created_at.strftime('%Y-%m-%d') }}</div>
+            <div class="col-sm-3 text-sm-end"><strong>Due:</strong> PKR {{ '%.2f'|format(order.total_price - (order.amount_paid or 0)) }}</div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-sm-3"><span class="d-block text-muted">Total</span><strong>PKR {{ '%.2f'|format(order.total_price) }}</strong></div>
+            <div class="col-sm-3"><span class="d-block text-muted">Paid</span><strong>PKR {{ '%.2f'|format(order.amount_paid or 0) }}</strong></div>
+            <div class="col-sm-3"><span class="d-block text-muted">Remaining</span><strong>PKR {{ '%.2f'|format(order.total_price - (order.amount_paid or 0)) }}</strong></div>
+            <div class="col-sm-3"><span class="d-block text-muted">Proof</span><strong>{{ 'Yes' if order.payment_proof else 'No' }}</strong></div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <form method="post" action="{{ url_for('update_order_status', order_id=order.id) }}" class="d-flex gap-2 align-items-center">
+              <select class="form-select form-select-sm" name="status" style="min-width:130px;">
+                <option value="Under Process" {% if order.status == 'Under Process' %}selected{% endif %}>Under Process</option>
+                <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                <option value="Complete" {% if order.status == 'Complete' %}selected{% endif %}>Complete</option>
+              </select>
+              <button class="btn btn-sm btn-success">Update</button>
+            </form>
+
+            <form method="post" action="{{ url_for('record_order_payment', order_id=order.id) }}" class="d-flex gap-2 align-items-center">
+              <input name="paid_amount" type="number" step="0.01" min="0" class="form-control form-control-sm" style="width:110px;" placeholder="Paid PKR">
+              <button class="btn btn-sm btn-primary">Record</button>
+            </form>
+
+            <form method="post" action="{{ url_for('add_addon', order_id=order.id) }}" class="d-flex gap-2 align-items-center">
+              <input name="name" class="form-control form-control-sm" placeholder="Add-on" style="max-width:130px;" required>
+              <input name="price" class="form-control form-control-sm" placeholder="Price" type="number" step="0.01" required style="max-width:120px;">
+              <button class="btn btn-sm btn-info">Add</button>
+            </form>
+
+            {% if order.status == 'Pending Payment' %}
+              <form method="post" action="{{ url_for('confirm_order_payment', order_id=order.id) }}" class="d-inline">
+                <button class="btn btn-sm btn-success">Confirm Payment</button>
+              </form>
+            {% endif %}
+
+            {% if order.payment_proof %}
+              <a href="{{ order.payment_proof }}" target="_blank" class="btn btn-sm btn-info">View Proof</a>
+            {% endif %}
+
+            <a href="{{ url_for('invoice', order_id=order.id) }}" target="_blank" class="btn btn-sm btn-secondary">Invoice</a>
+
+            <form method="post" action="{{ url_for('cancel_order', order_id=order.id) }}" class="d-inline">
+              <button class="btn btn-sm btn-warning" type="submit">Cancel</button>
+            </form>
+
+            <form method="post" action="{{ url_for('delete_order', order_id=order.id) }}" class="d-inline" onsubmit="return confirm('Remove this order permanently?');">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<script>
+  function loadAddonsForRow(row, productId) {
+    const container = row.querySelector('.addon-container');
+    if (!productId) {
+      container.innerHTML = '<small>Select product first for addons</small>';
+      return;
+    }
+    container.innerHTML = 'Loading add-ons...';
+    fetch('/admin/product_addons/' + productId)
+      .then(res => res.json())
+      .then(data => {
+        if (!data || data.length === 0) {
+          container.innerHTML = '<small>No add-ons available for selected product.</small>';
+          return;
+        }
+        const html = ['<label class="form-label">Add-Ons</label>'];
+        data.forEach(a => {
+          html.push(`<div class="form-check"><input class="form-check-input" type="checkbox" name="addon_ids" value="${a.id}" id="addon_${row.dataset.rowId}_${a.id}"><label class="form-check-label" for="addon_${row.dataset.rowId}_${a.id}">${a.name} (PKR ${a.price.toFixed(2)})</label></div>`);
+        });
+        container.innerHTML = html.join('');
+      })
+      .catch(() => {
+        container.innerHTML = '<small>Error loading add-ons.</small>';
+      });
+  }
+
+  function addOrderItemRow() {
+    const template = document.getElementById('order_item_template');
+    const row = template.content.firstElementChild.cloneNode(true);
+    row.dataset.rowId = Date.now();
+
+    row.querySelector('.product-select').addEventListener('change', function () {
+      const manualFields = row.querySelector('.manual-product-fields');
+      if (this.value === 'manual') {
+        manualFields.style.display = 'block';
+        loadAddonsForRow(row, null);
+      } else {
+        manualFields.style.display = 'none';
+        loadAddonsForRow(row, this.value);
+      }
+    });
+
+    row.querySelector('.remove-item').addEventListener('click', function () {
+      row.remove();
+    });
+
+    document.getElementById('admin_order_items').appendChild(row);
+  }
+
+  document.getElementById('add_order_item').addEventListener('click', function () {
+    addOrderItemRow();
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    addOrderItemRow();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Admin Custom Orders - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Custom Orders</h2>
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+  <a href="{{ url_for('admin_custom_orders', date='today', status=status_filter, order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if date_filter == 'today' %}btn-primary{% else %}btn-outline-primary{% endif %}">Today</a>
+  <a href="{{ url_for('admin_custom_orders', date='yesterday', status=status_filter, order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if date_filter in ['yesterday','last'] %}btn-primary{% else %}btn-outline-primary{% endif %}">Yesterday</a>
+  <a href="{{ url_for('admin_custom_orders', status='pending', date=date_filter, order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if status_filter and status_filter.lower() == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}">Pending</a>
+  <a href="{{ url_for('admin_custom_orders', status='complete', date=date_filter, order_number=order_number, customer_name=customer_name) }}" class="btn btn-sm {% if status_filter and status_filter.lower() == 'complete' %}btn-primary{% else %}btn-outline-primary{% endif %}">Complete</a>
+  <a href="{{ url_for('admin_custom_orders', date='all') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+</div>
+<form method="get" class="row g-3 mb-4 align-items-end">
+  <div class="col-md-2">
+    <label class="form-label">Order #/Title</label>
+    <input class="form-control" name="order_number" value="{{ order_number if order_number else '' }}" placeholder="Search">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Customer</label>
+    <input class="form-control" name="customer_name" value="{{ customer_name if customer_name else '' }}" placeholder="Search">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Status</label>
+    <select class="form-select" name="status">
+      <option value="">All</option>
+      <option value="pending" {% if status_filter and status_filter.lower() == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="quoted" {% if status_filter and status_filter.lower() == 'quoted' %}selected{% endif %}>Quoted</option>
+      <option value="confirmed" {% if status_filter and status_filter.lower() == 'confirmed' %}selected{% endif %}>Confirmed</option>
+      <option value="under process" {% if status_filter and status_filter.lower() == 'under process' %}selected{% endif %}>Under Process</option>
+      <option value="shipped" {% if status_filter and status_filter.lower() == 'shipped' %}selected{% endif %}>Shipped</option>
+      <option value="complete" {% if status_filter and status_filter.lower() == 'complete' %}selected{% endif %}>Complete</option>
+      <option value="converted" {% if status_filter and status_filter.lower() == 'converted' %}selected{% endif %}>Converted</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Date</label>
+    <input type="date" class="form-control" name="date" value="{% if date_filter not in ['today','yesterday','last','all'] %}{{ date_filter }}{% endif %}">
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-secondary w-100">Filter</button>
+  </div>
+</form>
+  </div>
+</div>
+
+<div class="card p-3 mb-4">
+  <h5>Create Custom Order</h5>
+  <form method="post" action="{{ url_for('admin_create_custom_order') }}" class="row g-2">
+    <div class="col-md-3">
+      <label class="form-label">User</label>
+      <select name="user_id" class="form-select" required>
+        {% for user in users %}
+          <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Title</label>
+      <input name="title" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Description</label>
+      <input name="description" class="form-control" required>
+    </div>
+    <div class="col-md-1">
+      <label class="form-label">Quantity</label>
+      <input name="quantity" type="number" min="1" class="form-control" value="1">
+    </div>
+    <div class="col-md-1">
+      <label class="form-label">Photo URL</label>
+      <input name="image_url" class="form-control" placeholder="Optional">
+    </div>
+    <div class="col-md-12">
+      <button class="btn btn-primary">Create</button>
+    </div>
+  </form>
+</div>
+
+<div class="row g-3">
+  {% if requests|length == 0 %}
+    <div class="col-12">
+      <div class="alert alert-info">No custom orders found for current filters.</div>
+    </div>
+  {% endif %}
+  {% for req in requests %}
+  <div class="col-md-6">
+    <div class="card shadow-sm mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0">{{ req.custom_order_number or 'CO-'~req.id }} <small class="text-muted">({{ req.created_at.strftime('%Y-%m-%d') }})</small></h5>
+          <p class="mb-0"><small><strong>{{ req.user.name }}</strong> ({{ req.user.email }})</small></p>
+        </div>
+        <span class="badge bg-{{ 'warning' if req.status in ['Pending','Quoted','Under Process'] else 'primary' if req.status=='Shipped' else 'success' if req.status=='Complete' else 'secondary' }}">{{ req.status }}</span>
+      </div>
+      <div class="card-body">
+        <p><strong>{{ req.title }}</strong> - <em>{{ req.quantity }} pcs</em></p>
+        <p class="text-muted">{{ req.description[:160] }}{% if req.description|length > 160 %}...{% endif %}</p>
+        <p class="mb-2"><strong>Estimate:</strong> {% if req.estimate_price %}PKR {{ '%.2f'|format(req.estimate_price) }}{% else %}- not set {% endif %}</p>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{{ url_for('admin_custom_order_view', custom_id=req.id) }}" class="btn btn-sm btn-info">View</a>
+          <form method="post" action="{{ url_for('custom_order_status', custom_id=req.id) }}" class="d-flex gap-1 mb-0" style="min-width: 220px;">
+            <select name="status" class="form-select form-select-sm">
+              {% for s in ['Pending','Quoted','Confirmed','Under Process','Shipped','Complete','Converted'] %}
+              <option value="{{ s }}" {% if req.status==s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-sm btn-warning">Update</button>
+          </form>
+          <form method="post" action="{{ url_for('estimate_custom_order', custom_id=req.id) }}" class="d-flex gap-1 mb-0" style="min-width: 220px;">
+            <input name="estimate_price" class="form-control form-control-sm" type="number" step="0.01" placeholder="Estimate" required>
+            <button class="btn btn-sm btn-primary">Quote</button>
+          </form>
+          <form method="post" action="{{ url_for('convert_custom_order', custom_id=req.id) }}" class="mb-0">
+            <button class="btn btn-sm btn-success">Convert</button>
+          </form>
+          <form method="post" action="{{ url_for('admin_delete_custom_order', custom_id=req.id) }}" class="mb-0" onsubmit="return confirm('Are you sure you want to delete this custom order?');">
+            <button class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

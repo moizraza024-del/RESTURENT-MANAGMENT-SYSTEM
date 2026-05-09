@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Online Payment - Sugar Blush{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card p-4 shadow-sm">
+      <h2>Online Payment Instructions</h2>
+      <p>Please transfer <strong>PKR {{ '%.2f'|format(order.total_price) }}</strong> to the account below:</p>
+      <div class="alert alert-info">
+        <pre style="white-space: pre-wrap;">{{ order.payment_details or 'No bank account is configured. Contact admin.' }}</pre>
+      </div>
+      <p>Order Number: <strong>{{ order.order_number or 'SB-' ~ order.id }}</strong></p>
+      <p>Order Name: <strong>{{ order.order_name }}</strong></p>
+      <p>After you have sent the payment, click the button below to confirm your payment.</p>
+      <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">Upload payment screenshot / proof</label>
+          <input type="file" name="payment_proof" class="form-control" accept="image/*,application/pdf" required>
+        </div>
+        <button type="submit" class="btn btn-success">Upload + Confirm Payment</button>
+      </form>
+      <a href="{{ url_for('order_history') }}" class="btn btn-secondary mt-2">Cancel / Back to Orders</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

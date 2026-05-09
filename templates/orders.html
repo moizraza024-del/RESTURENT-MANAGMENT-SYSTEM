@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Orders - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Order History</h2>
+<div class="row g-3">
+  {% for order in orders %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card order-card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Order {{ order.order_number or 'N/A' }}</h5>
+        <p class="card-text mb-1"><strong>Order ID:</strong> {{ order.id }}</p>
+        <p class="card-text mb-1"><strong>Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p class="card-text mb-1"><strong>Total:</strong> PKR {{ '%.2f'|format(order.total_price) }}</p>
+        <p class="card-text mb-1"><strong>Status:</strong>
+          <span class="badge {{ 'bg-success' if order.status in ['Complete','Shipped'] else 'bg-warning' if order.status in ['Under Process','Pending Payment'] else 'bg-danger' }}">{{ order.status }}</span>
+        </p>
+        <a href="{{ url_for('invoice', order_id=order.id) }}" class="btn btn-sm btn-primary">View Invoice</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% if not orders %}
+<div class="alert alert-info mt-3">No previous orders found. Start shopping to place your first order!</div>
+{% endif %}
+{% endblock %}

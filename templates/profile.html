@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Profile - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Profile</h2>
+<form method="post" class="row g-3">
+  <div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" value="{{ current_user.name }}"></div>
+  <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" value="{{ current_user.email }}" readonly></div>
+  <div class="col-md-6"><label class="form-label">Password (change)</label><input type="password" name="password" class="form-control"></div>
+  <div class="col-md-6"><label class="form-label">Phone 1</label><input class="form-control" name="phone1" value="{{ current_user.phone1 }}"></div>
+  <div class="col-md-6"><label class="form-label">Phone 2</label><input class="form-control" name="phone2" value="{{ current_user.phone2 }}"></div>
+  <div class="col-md-6"><label class="form-label">Country</label><input class="form-control" name="country" value="{{ current_user.country }}"></div>
+  <div class="col-md-4"><label class="form-label">State</label><input class="form-control" name="state" value="{{ current_user.state }}"></div>
+  <div class="col-md-2"><label class="form-label">Postal Code</label><input class="form-control" name="postal_code" value="{{ current_user.postal_code }}"></div>
+  <div class="col-12"><label class="form-label">City</label><input class="form-control" name="city" value="{{ current_user.city }}"></div>
+  <div class="col-12"><label class="form-label">Address 1</label><input class="form-control" name="address1" value="{{ current_user.address1 }}"></div>
+  <div class="col-12"><label class="form-label">Address 2</label><input class="form-control" name="address2" value="{{ current_user.address2 }}"></div>
+  <div class="col-12"><label class="form-label">Address 3</label><input class="form-control" name="address3" value="{{ current_user.address3 }}"></div>
+  <div class="col-12"><button class="btn btn-success">Update Profile</button></div>
+</form>
+<hr>
+{% if due_amount > 0 or warning_note %}
+<h3>Account Dues</h3>
+<div class="mb-3">
+  <p><strong>Current Due:</strong> PKR {{ '%.2f'|format(due_amount) }}</p>
+  {% if due_threshold > 0 %}
+    <p><strong>Warning Threshold:</strong> PKR {{ '%.2f'|format(due_threshold) }}</p>
+  {% endif %}
+  {% if due_status %}
+    <div class="alert alert-danger">{{ due_status }}</div>
+  {% elif due_amount > 0 %}
+    <div class="alert alert-warning">You have a pending due amount. Please settle your payment.</div>
+  {% endif %}
+  {% if warning_note %}
+    <div class="alert alert-danger mt-2">Admin warning: {{ warning_note }}</div>
+  {% endif %}
+</div>
+<hr>
+{% endif %}
+<h3>Previous Orders</h3>
+<a class="btn btn-outline-primary mb-2" href="{{ url_for('order_history') }}">View Order History</a>
+{% endblock %}

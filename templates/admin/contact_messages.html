@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Contact Messages - Admin{% endblock %}
+{% block content %}
+<h2>Contact Messages</h2>
+<div class="mb-3">
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Received</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for m in messages %}
+    <tr>
+      <td>{{ m.id }}</td>
+      <td>{{ m.name }}</td>
+      <td>{{ m.email }}</td>
+      <td>{{ m.phone }}</td>
+      <td>{{ m.status }}</td>
+      <td>{{ m.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td><a class="btn btn-sm btn-primary" href="{{ url_for('admin_contact_message_detail', msg_id=m.id) }}">View</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center">No contact messages yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

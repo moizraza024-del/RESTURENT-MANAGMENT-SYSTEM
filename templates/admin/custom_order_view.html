@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Custom Order Detail - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Custom Order Detail</h2>
+<div class="card p-3 mb-3">
+  <h4>{{ custom.title }}</h4>
+  <p><strong>Description:</strong> {{ custom.description }}</p>
+  <p><strong>Quantity:</strong> {{ custom.quantity }}</p>
+  <p><strong>Quote Price (Unit):</strong> {% if custom.estimate_price %}PKR {{ '%.2f'|format(custom.estimate_price) }}{% else %}-{% endif %}</p>
+  <p><strong>Total Quote:</strong> {% if custom.estimate_price %}PKR {{ '%.2f'|format(custom.estimate_price * custom.quantity) }}{% else %}-{% endif %}</p>
+  <p><strong>Status:</strong> <span class="badge bg-secondary">{{ custom.status }}</span></p>
+  {% if custom.uploaded_image %}
+  <p><strong>Image:</strong><br><img src="{{ custom.uploaded_image }}" style="max-width:240px; max-height:240px;" alt="Custom image"></p>
+  {% endif %}
+  <a href="{{ url_for('admin_custom_orders') }}" class="btn btn-sm btn-outline-secondary">Back to Requests</a>
+  <form method="post" action="{{ url_for('admin_delete_custom_order', custom_id=custom.id) }}" onsubmit="return confirm('Are you sure you want to delete this custom order?');" style="display:inline-block; margin-left:10px;">
+    <button class="btn btn-sm btn-danger">Delete</button>
+  </form>
+</div>
+{% endblock %}

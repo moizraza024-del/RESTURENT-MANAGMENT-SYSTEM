@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Cart - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Your Cart</h2>
+{% if not cart_items %}
+  <div class="alert alert-info">Your cart is empty. Start shopping to add items!</div>
+  <a href="{{ url_for('shop') }}" class="btn btn-success">Go to Shop</a>
+{% else %}
+<form method="post" action="{{ url_for('update_cart') }}">
+  <div class="row g-3">
+    {% for pid, item in cart_items.items() %}
+    <div class="col-12">
+      <div class="card cart-item-card p-3">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <img src="{{ item.image }}" alt="{{ item.name }}" class="cart-item-img rounded" onerror="this.src='https://via.placeholder.com/110x110?text=No+Image';">
+          <div class="flex-fill">
+            <h5 class="mb-1">{{ item.name }}</h5>
+            <div><strong>Unit Price:</strong> PKR {{ '%.2f'|format(item.price) }}</div>
+            <div>
+              <strong>Add-ons:</strong>
+              {% if item.addons %}
+                {% for addon in item.addons %}
+                  <span class="badge rounded-pill bg-secondary">{{ addon.name if addon.name is defined else addon['name'] }} +PKR {{ '%.2f'|format(addon.price if addon.price is defined else addon['price']) }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </div>
+            <div class="mt-2 d-flex align-items-center gap-2">
+              <label class="mb-0" style="min-width: 70px;">Quantity</label>
+              <input class="form-control form-control-sm" type="number" name="qty_{{ pid }}" value="{{ item.quantity }}" min="0" style="max-width: 95px;">
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('product_detail', product_id=pid) }}">Add Add-on</a>
+              <a class="btn btn-sm btn-danger" href="{{ url_for('remove_from_cart', product_id=pid) }}">Remove</a>
+            </div>
+          </div>
+          <div class="text-end">
+            <div><strong>Subtotal</strong></div>
+            <div class="h5">PKR {{ '%.2f'|format((item.price + (item.addons|sum(attribute='price') if item.addons else 0)) * item.quantity) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="h5">Total: PKR {{ '%.2f'|format(total_price) }}</div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-secondary">Update Cart</button>
+      <a class="btn btn-success" href="{{ url_for('checkout') }}">Proceed to Checkout</a>
+    </div>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

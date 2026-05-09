@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Invoice #{{ order.order_number or order.id }} - Sugar Blush{% endblock %}
+{% block head %}
+<style>
+  @media print {
+    body * { visibility: hidden !important; }
+    #invoice-printable, #invoice-printable * { visibility: visible !important; }
+    #invoice-printable { position: absolute; left: 0; top: 0; width: 100%; }
+    #invoice-printable .btn { display: none !important; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div id="invoice-printable" class="card p-4 shadow-sm border-0" style="background:#fff;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+      <div class="invoice-logo-circle">
+        {% if site_logo %}
+          <img src="{{ site_logo }}" alt="Logo">
+        {% else %}
+          <span style="font-size:.7rem;font-weight:800;color:#e27f74;">SUGAR<br>BLUSH</span>
+        {% endif %}
+      </div>
+      <div style="margin-left:12px;">
+        <h3 class="mb-0" style="font-weight:800;letter-spacing:1px;color:#8d3d3e;">SUGAR BLUSH</h3>
+        <small>Premium Bakery & Cake Shop</small>
+      </div>
+    </div>
+    <button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-4 p-3 rounded" style="background:#f9f9f9;">
+      <h6 class="text-uppercase">Invoice</h6>
+      <p class="mb-1"><strong>Order #:</strong> {{ order.order_number or ('SB-' ~ order.id) }}</p>
+      <p class="mb-1"><strong>Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+      <p class="mb-0"><strong>Status:</strong> <span class="badge bg-{{ 'success' if order.status=='Complete' else 'warning' if order.status=='Shipped' else 'secondary' }}">{{ order.status }}</span></p>
+    </div>
+    <div class="col-md-4 p-3 rounded" style="background:#f9f9f9;">
+      <h6 class="text-uppercase">Billed To</h6>
+      <p class="mb-1"><strong>{{ order.user.name }}</strong></p>
+      <p class="mb-1">{{ order.user.email }}</p>
+      {% if order.user.phone1 %}<p class="mb-1">Phone: {{ order.user.phone1 }}</p>{% endif %}
+      {% if order.user.address1 %}<p class="mb-0">{{ order.user.address1 }}{% if order.user.address2 %}, {{ order.user.address2 }}{% endif %}</p>{% endif %}
+      {% if order.user.city %}<p class="mb-0">{{ order.user.city }}{% if order.user.state %}, {{ order.user.state }}{% endif %}</p>{% endif %}
+    </div>
+    <div class="col-md-4 p-3 rounded" style="background:#f9f9f9;">
+      <h6 class="text-uppercase">Payment</h6>
+      <p class="mb-1"><strong>Method:</strong> {{ order.payment_method or 'Cash on Delivery' }}</p>
+      {% if order.payment_method == 'Online' and order.payment_details %}
+      <p class="mb-1"><strong>Pay via:</strong> {{ order.payment_details }}</p>
+      {% endif %}
+      <p class="mb-1"><strong>Paid:</strong> PKR {{ '%.2f'|format(order.amount_paid or 0) }}</p>
+      <p class="mb-0"><strong>Due:</strong> PKR {{ '%.2f'|format(order.total_price - (order.amount_paid or 0)) }}</p>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead class="table-light"><tr><th>Photo</th><th>Item</th><th>Qty</th><th class="text-end">Unit Price</th><th class="text-end">Amount</th></tr></thead>
+      <tbody>
+        {% for item in order.items %}
+        <tr>
+          <td class="align-middle text-center" style="width: 80px;">
+            {% if item.product and item.product.image %}
+            <img src="{{ item.product.image }}" alt="{{ item.product.name }}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" />
+            {% else %}
+            <span class="text-muted" style="font-size:.8rem;">No image</span>
+            {% endif %}
+          </td>
+          <td class="align-middle">{% if item.product_id == 0 %}{{ order.order_name }}{% else %}{{ item.product.name }}{% endif %}</td>
+          <td class="align-middle">{{ item.quantity }}</td>
+          <td class="text-end align-middle">PKR {{ '%.2f'|format(item.price) }}</td>
+          <td class="text-end align-middle">PKR {{ '%.2f'|format(item.price * item.quantity) }}</td>
+        </tr>
+        {% endfor %}
+        {% for addon in order.addons %}
+        <tr>
+          <td class="align-middle text-center" style="width: 80px;"><span class="text-muted" style="font-size:.8rem;">N/A</span></td>
+          <td class="align-middle">Addon: {{ addon.name }}</td>
+          <td class="align-middle">1</td>
+          <td class="text-end align-middle">PKR {{ '%.2f'|format(addon.price) }}</td>
+          <td class="text-end align-middle">PKR {{ '%.2f'|format(addon.price) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3" class="text-end">Subtotal</th>
+          <th class="text-end">PKR {{ '%.2f'|format(order.total_price) }}</th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-end">Amount Paid</th>
+          <th class="text-end">PKR {{ '%.2f'|format(order.total_price) }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <p class="mb-0"><strong>Thank you for your purchase!</strong></p>
+    <p>If you have any questions, contact 986sugarblush@gmail.com  or call +92 315 4331348.</p>
+  </div>
+
+  <hr>
+  <div class="text-center mt-3">
+    <p class="mb-1"><strong>Follow us:</strong></p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="https://www.facebook.com/share/1CNgGnYDxp/" target="_blank" rel="noreferrer" class="text-dark"><i class="bi bi-facebook"></i> Facebook</a>
+      <a href="https://www.instagram.com/sugarblush_bakers?igsh=MWp0Ymk4eWx1NGV1eg==" target="_blank" rel="noreferrer" class="text-dark"><i class="bi bi-instagram"></i> Instagram</a>
+      <a href="https://youtube.com/@sugarblush_bakers?si=tzmkz5mJLPuXHEif" target="_blank" rel="noreferrer" class="text-dark"><i class="bi bi-youtube"></i> YouTube</a>
+      <a href="https://www.tiktok.com/@sugarblush_vibes?_r=1&_t=ZN-94gFTOBCsPW" target="_blank" rel="noreferrer" class="text-dark"><i class="bi bi-tiktok"></i> TikTok</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Admin Announcements - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Manage Announcements</h2>
+<form method="post" class="row g-3 mb-4">
+  <div class="col-md-6"><input class="form-control" name="title" placeholder="Announcement title" required></div>
+  <div class="col-md-6"><input class="form-control" name="content" placeholder="Announcement content" required></div>
+  <div class="col-12"><button class="btn btn-gradient">Create Announcement</button></div>
+</form>
+<table class="table table-striped">
+  <thead><tr><th>ID</th><th>Title</th><th>Content</th><th>Created At</th><th>Action</th></tr></thead>
+  <tbody>
+    {% for ann in announcements %}
+    <tr>
+      <td>{{ ann.id }}</td>
+      <td>{{ ann.title }}</td>
+      <td>{{ ann.content }}</td>
+      <td>{{ ann.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td><a class="btn btn-sm btn-danger" href="{{ url_for('delete_announcement', id=ann.id) }}">Delete</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

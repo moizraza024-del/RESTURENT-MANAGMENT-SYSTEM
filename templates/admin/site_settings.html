@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Admin Site Settings - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Site Settings</h2>
+<div class="row">
+  <div class="col-md-6">
+    <form method="post" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label">Logo URL</label>
+        <input type="text" class="form-control" name="logo" value="{{ setting.value if setting else '' }}" placeholder="https://...">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Or upload logo</label>
+        <input type="file" class="form-control" name="logo_file" accept="image/*">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Bank Account / Payment Details (for Online Payment)</label>
+        <textarea class="form-control" name="bank_details" rows="3" placeholder="Account number, IBAN, bank name...">{{ bank_setting.value if bank_setting else '' }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Due Warning Threshold (PKR)</label>
+        <input type="text" class="form-control" name="due_warning_threshold" value="{{ due_warning_threshold }}" placeholder="Enter threshold amount">
+        <div class="form-text">Highlight users in admin list with pending due equal or above this amount.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Social Media Links</label>
+        <input type="text" class="form-control mb-2" name="social_facebook" value="{{ social_facebook if social_facebook is defined else '' }}" placeholder="Facebook URL">
+        <input type="text" class="form-control mb-2" name="social_instagram" value="{{ social_instagram if social_instagram is defined else '' }}" placeholder="Instagram URL">
+        <input type="text" class="form-control mb-2" name="social_youtube" value="{{ social_youtube if social_youtube is defined else '' }}" placeholder="YouTube URL">
+        <input type="text" class="form-control" name="social_tiktok" value="{{ social_tiktok if social_tiktok is defined else '' }}" placeholder="TikTok URL">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">About Us Image URL</label>
+        <input type="text" class="form-control" name="about_image" value="{{ about_image if about_image is defined else '' }}" placeholder="https://...">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Or upload About Us image</label>
+        <input type="file" class="form-control" name="about_image_file" accept="image/*">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">About Us Text</label>
+        <textarea class="form-control" name="about_text" rows="4" placeholder="About section text">{{ about_text if about_text is defined else '' }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Stock Warning Threshold (units)</label>
+        <input type="text" class="form-control" name="stock_warning_threshold" value="{{ stock_warning_threshold if stock_warning_threshold is defined else '' }}" placeholder="Enter stock threshold amount">
+        <div class="form-text">Products with stock less or equal than this appear as low stock.</div>
+      </div>
+      <button class="btn btn-primary" type="submit">Save Settings</button>
+    </form>
+  </div>
+  <div class="col-md-6">
+    <h5>Current Logo</h5>
+    {% if setting and setting.value %}
+      <img src="{{ setting.value }}" alt="Site Logo" class="img-fluid" style="max-height: 120px;">
+    {% else %}
+      <div class="alert alert-info">No logo set yet</div>
+    {% endif %}
+    <h5 class="mt-4">About Us Preview</h5>
+    <p>{{ about_text if about_text else 'No about-us text set yet' }}</p>
+    {% if about_image %}
+      <img src="{{ about_image }}" alt="About Image" class="img-fluid" style="max-height: 180px;">
+    {% else %}
+      <div class="alert alert-info">No about image set yet</div>
+    {% endif %}
+    <h5 class="mt-4">Social Links Preview</h5>
+    <p><a href="{{ social_facebook or 'https://www.facebook.com/share/1CNgGnYDxp/' }}" target="_blank">Facebook</a></p>
+    <p><a href="{{ social_instagram or 'https://www.instagram.com/sugarblush_bakers?igsh=MWp0Ymk4eWx1NGV1eg==' }}" target="_blank">Instagram</a></p>
+    <p><a href="{{ social_youtube or 'https://youtube.com/@sugarblush_bakers?si=tzmkz5mJLPuXHEif' }}" target="_blank">YouTube</a></p>
+    <p><a href="{{ social_tiktok or 'https://www.tiktok.com/@sugarblush_vibes?_r=1&_t=ZN-94gFTOBCsPW' }}" target="_blank">TikTok</a></p>
+  </div>
+</div>
+{% endblock %}

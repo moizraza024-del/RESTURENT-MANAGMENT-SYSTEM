@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Custom Order Details - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Custom Order Details</h2>
+<div class="card p-3 mb-4">
+  <div class="row">
+    <div class="col-md-4"><strong>Order No:</strong> {{ custom.custom_order_number or 'N/A' }}</div>
+    <div class="col-md-4"><strong>Status:</strong> {{ custom.status }}</div>
+    <div class="col-md-4"><strong>Created:</strong> {{ custom.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+  </div>
+  <hr>
+  <h5>{{ custom.title }}</h5>
+  <p><strong>Description:</strong> {{ custom.description }}</p>
+  <p><strong>Quantity:</strong> {{ custom.quantity }}</p>
+  <p><strong>Quote Price (unit):</strong> {% if custom.estimate_price %}PKR {{ '%.2f'|format(custom.estimate_price) }}{% else %}-{% endif %}</p>
+  <p><strong>Total Price:</strong> {% if custom.estimate_price %}PKR {{ '%.2f'|format(custom.estimate_price * custom.quantity) }}{% else %}-{% endif %}</p>
+  <p><strong>User:</strong> {{ custom.user.name }} ({{ custom.user.email }})</p>
+  <p><strong>Image:</strong> {% if custom.uploaded_image %}<img src="{{ custom.uploaded_image }}" style="max-width:200px;" alt="Custom Image">{% else %}None{% endif %}</p>
+  <div class="mt-3">
+    <a href="{{ url_for('admin_custom_orders') }}" class="btn btn-secondary">Back to Custom Orders</a>
+    {% if custom.status in ['Confirmed','Awaiting Conversion','Quoted'] %}
+    <form method="post" action="{{ url_for('convert_custom_order', custom_id=custom.id) }}" class="d-inline">
+      <button class="btn btn-success" type="submit">Convert to Order (Pending)</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

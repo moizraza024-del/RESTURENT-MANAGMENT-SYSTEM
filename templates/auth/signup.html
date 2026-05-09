@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Signup - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Signup</h2>
+<form method="post" class="row g-3">
+  <div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" required></div>
+  <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" name="email" required></div>
+  <div class="col-md-6"><label class="form-label">Password</label><input type="password" class="form-control" name="password" required></div>
+  <div class="col-md-6"><label class="form-label">Phone 1</label><input class="form-control" name="phone1"></div>
+  <div class="col-md-6"><label class="form-label">Phone 2</label><input class="form-control" name="phone2"></div>
+  <div class="col-md-6"><label class="form-label">Country</label><input class="form-control" name="country"></div>
+  <div class="col-md-4"><label class="form-label">State</label><input class="form-control" name="state"></div>
+  <div class="col-md-2"><label class="form-label">Postal Code</label><input class="form-control" name="postal_code"></div>
+  <div class="col-12"><label class="form-label">City</label><input class="form-control" name="city"></div>
+  <div class="col-12"><label class="form-label">Address 1</label><input class="form-control" name="address1"></div>
+  <div class="col-12"><label class="form-label">Address 2</label><input class="form-control" name="address2"></div>
+  <div class="col-12"><label class="form-label">Address 3</label><input class="form-control" name="address3"></div>
+  <div class="col-12"><button class="btn btn-primary">Register</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Admin Stock Management - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Stock Management</h2>
+<div class="row mb-3">
+  <div class="col-md-3">
+    <div class="card border-primary p-3 shadow-sm">
+      <h6>Total Stock</h6>
+      <strong class="display-6">{{ total_stock }}</strong>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-warning p-3 shadow-sm">
+      <h6>Low Stock Items (<= {{ stock_warning_threshold }})</h6>
+      <strong class="display-6">{{ low_stock_items }}</strong>
+    </div>
+  </div>
+  <div class="col-md-6 text-end align-self-center">
+    <a class="btn btn-outline-primary" href="{{ url_for('admin_stock_report') }}">View Stock Analytics</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_stock_report_pdf') }}">Download PDF Report</a>
+  </div>
+</div>
+
+<div class="card mb-3 p-3">
+  <h5>Category-wise Stock</h5>
+  <table class="table table-sm">
+    <thead><tr><th>Category</th><th>Stock</th></tr></thead>
+    <tbody>
+      {% for cat, stock in category_stock %}
+      <tr><td>{{ cat }}</td><td>{{ stock }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card mb-4 p-3">
+  <h5>Low Stock Products</h5>
+  <table class="table table-sm">
+    <thead><tr><th>Name</th><th>Category</th><th>Stock</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for p in low_stock_products %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.category.name if p.category else 'None' }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          <form method="post" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="product_id" value="{{ p.id }}">
+            <input type="number" name="stock" min="0" value="{{ p.stock }}" class="form-control form-control-sm" style="width: 100px;">
+            <button class="btn btn-sm btn-success" type="submit">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-center">No low stock products</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card p-3">
+  <h5>All Products Stock</h5>
+  <table class="table table-sm">
+    <thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Update</th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr class="{% if p.stock <= stock_warning_threshold %}table-warning{% endif %}">
+        <td>{{ p.name }}</td>
+        <td>{{ p.category.name if p.category else 'None' }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          <form method="post" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="product_id" value="{{ p.id }}">
+            <input type="number" name="stock" min="0" value="{{ p.stock }}" class="form-control form-control-sm" style="width: 100px;">
+            <button class="btn btn-sm btn-success" type="submit">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

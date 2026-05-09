@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Custom Checkout - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Custom Order Checkout</h2>
+<div class="card p-3 mb-3">
+  <h4>{{ custom.title }}</h4>
+  <p>{{ custom.description }}</p>
+  <p>Quantity: {{ custom.quantity }}</p>
+  <p>Quote price (unit): PKR {{ '%.2f'|format(custom.estimate_price) }}</p>
+  <p><strong>Total: PKR {{ '%.2f'|format(total_price) }}</strong></p>
+</div>
+<form method="post">
+  <div class="mb-3">
+    <label for="payment_method" class="form-label">Payment Method</label>
+    <select class="form-select" name="payment_method" id="payment_method" required>
+      <option value="Cash on Delivery">Cash on Delivery (Order pending approval)</option>
+      <option value="Online">Online Payment (Order pending payment)</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Order Now</button>
+  <a href="{{ url_for('custom_orders') }}" class="btn btn-link">Back to Custom Requests</a>
+</form>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} - Sugar Blush{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <img src="{{ product.image }}" class="img-fluid rounded" alt="{{ product.name }}">
+  </div>
+  <div class="col-md-6">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description }}</p>
+    <p><strong>PKR {{ '%.2f'|format(product.price_after_discount) }}</strong>
+      {% if product.discount > 0 %}<span class="text-muted text-decoration-line-through">PKR {{ '%.2f'|format(product.sale_price) }}</span>{% endif %}
+    </p>
+    <p>
+      <strong>Stock:</strong>
+      {% if product.stock > 0 %}
+        <span class="text-success">{{ product.stock }}</span>
+      {% else %}
+        <span class="text-danger">Out of stock</span>
+      {% endif %}
+    </p>
+    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" class="row g-2" id="add-cart-form">
+      {% if product.addons %}
+        <h5>Available Add-Ons</h5>
+        <div class="row mb-3">
+          {% for addon in product.addons %}
+            <div class="col-md-6 mb-3">
+              <div class="card p-2 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                  <img src="{{ addon.image }}" class="me-2" style="width:60px;height:60px;object-fit:cover;" alt="{{ addon.name }}">
+                  <div>
+                    <p class="mb-0"><strong>{{ addon.name }}</strong></p>
+                    <p class="mb-0">PKR {{ '%.2f'|format(addon.price) }}</p>
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input addon-checkbox" name="addon_ids" value="{{ addon.id }}" id="addon_check_{{ addon.id }}">
+                      <label class="form-check-label" for="addon_check_{{ addon.id }}">Select add-on</label>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-success addon-toggle" data-addon-id="{{ addon.id }}"><i class="bi bi-plus-lg"></i> Add</button>
+                <span class="badge bg-success ms-2 selected-label" id="selected_label_{{ addon.id }}" style="display:none;">Selected</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="col-auto"><input type="number" class="form-control" name="quantity" value="1" min="1" {% if product.stock <= 0 %}disabled{% endif %}></div>
+      {% if product.stock > 0 %}
+      <div class="col-auto">
+        <button type="submit" class="btn btn-success" formaction="{{ url_for('add_to_cart', product_id=product.id) }}">Add to Cart</button>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary" formaction="{{ url_for('buy_now', product_id=product.id) }}">Buy Now</button>
+      </div>
+      {% else %}
+      <div class="col-12"><button class="btn btn-secondary" disabled>Out of stock</button></div>
+      {% endif %}
+      <div class="col-auto"><a href="{{ url_for('custom_orders') }}" class="btn btn-outline-warning">Request Custom Order</a></div>
+    </form>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.addon-toggle').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const addonId = this.dataset.addonId;
+          const checkbox = document.getElementById('addon_check_' + addonId);
+          if (!checkbox) return;
+
+          checkbox.checked = !checkbox.checked;
+          const selectedLabel = document.getElementById('selected_label_' + addonId);
+          if (checkbox.checked) {
+            this.innerHTML = '<i class="bi bi-check-lg"></i> Added';
+            this.classList.remove('btn-outline-success');
+            this.classList.add('btn-danger');
+            if (selectedLabel) selectedLabel.style.display = 'inline-block';
+          } else {
+            this.innerHTML = '<i class="bi bi-plus-lg"></i> Add';
+            this.classList.remove('btn-danger');
+            this.classList.add('btn-outline-success');
+            if (selectedLabel) selectedLabel.style.display = 'none';
+          }
+        });
+      });
+
+      // debug helper in console
+      const form = document.getElementById('add-cart-form');
+      if (form) {
+        form.addEventListener('submit', function() {
+          const selected = Array.from(document.querySelectorAll('.addon-checkbox:checked')).map(i => i.value);
+          console.log('Adding to cart with addons:', selected);
+        });
+      }
+    });
+  </script>
+
+</div>
+{% endblock %}

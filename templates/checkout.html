@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - Sugar Blush{% endblock %}
+{% block content %}
+<h2>Checkout</h2>
+<div class="mb-3">
+  <p>Review your items and select payment method before placing the order.</p>
+</div>
+<form action="{{ url_for('checkout') }}" method="post">
+  <table class="table table-bordered align-middle">
+    <thead><tr><th>Product</th><th>Price</th><th>Add-ons</th><th>Quantity</th><th>Subtotal</th></tr></thead>
+    <tbody>
+      {% for pid, item in cart_items.items() %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>PKR {{ '%.2f'|format(item.price) }}</td>
+        <td>
+          {% if item.addons %}
+            {% for addon in item.addons %}
+              <div><strong>{{ addon.name }}</strong>: PKR {{ '%.2f'|format(addon.price) }}</div>
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">None</span>
+          {% endif %}
+        </td>
+        <td>{{ item.quantity }}</td>
+        <td>PKR {{ '%.2f'|format((item.price + (item.addons|sum(attribute='price') if item.addons else 0)) * item.quantity) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mb-3">
+    <strong>Total: PKR {{ '%.2f'|format(total_price) }}</strong>
+  </div>
+
+  {% if is_guest %}
+  <div class="mb-3">
+    <label for="guest_name" class="form-label">Name</label>
+    <input type="text" class="form-control" name="guest_name" id="guest_name" required>
+  </div>
+  <div class="mb-3">
+    <label for="guest_email" class="form-label">Email</label>
+    <input type="email" class="form-control" name="guest_email" id="guest_email" required>
+  </div>
+  {% endif %}
+
+  <div class="mb-3">
+    <label for="payment_method" class="form-label">Payment Method</label>
+    <select class="form-select" name="payment_method" id="payment_method" required>
+      <option value="Cash on Delivery">Cash on Delivery</option>
+      <option value="Online">Online Payment</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Place Order</button>
+  <a href="{{ url_for('cart') }}" class="btn btn-link">Back to Cart</a>
+</form>
+{% endblock %}
